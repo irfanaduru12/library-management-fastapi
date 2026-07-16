@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app.db import models
 from app.schemas import book as schemas
+from typing import Optional
 
 def get_book(db: Session, book_id: int):
     return db.query(models.Book).filter(models.Book.id == book_id).first()
@@ -11,7 +12,7 @@ def get_all_books(db: Session, skip: int = 0, limit: int = 100):
 def create_book(db: Session, book: schemas.BookCreate):
     db_book = models.Book(
         title = book.title,
-        author = book.author,
+        author_id = book.author_id,
         isbn = book.isbn
     )
 
@@ -35,10 +36,13 @@ def delete_book(db: Session, db_book: models.Book):
     db.commit()
     return db_book
 
-def search_books(db: Session, query: str):
-    search_format = f"%{query}%"
+def search_books(db: Session, title: Optional[str] = None, author_name: Optional[str] = None):
+    query = db.query(models.Book)
 
-    return db.query(models.Book).filter(
-        (models.Book.title.ilike(search_format) | 
-         (models.Book.author.ilike(search_format)))
-    ).all()
+    if title:
+        query = query.filter(models.Book.title.ilike(f"%{title}%"))
+
+    if author_name:
+        query = query.join(models.Author).filter(models.Author.name.ilike(f"%{author_name}%"))
+
+    return query.all()
