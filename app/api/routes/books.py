@@ -5,6 +5,7 @@ from typing import List, Optional
 from app.db.database import get_db
 from app.schemas import book as schemas
 from app.crud import crud_book as crud
+from app.api.routes.dependencies.dependencies import pagination_params
 
 router = APIRouter()
 
@@ -21,8 +22,10 @@ def search_books(title: Optional[str] = None, author_name: Optional[str] = None,
     return books 
 
 @router.get("/", response_model=List[schemas.BookResponse])
-def get_all_books(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return crud.get_all_books(db=db, skip=skip, limit=limit)
+def get_all_books(pagination = Depends(pagination_params), db: Session = Depends(get_db)):
+    skip_value = pagination["skip"]
+    limit_value = pagination["limit"]
+    return crud.get_all_books(db=db, skip=skip_value, limit=limit_value)
 
 @router.get("/{book_id}", response_model=schemas.BookResponse)
 def get_book(book_id: int, db: Session = Depends(get_db)):

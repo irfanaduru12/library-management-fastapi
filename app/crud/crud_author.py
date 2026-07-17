@@ -22,9 +22,9 @@ def update_author(db: Session, db_author: models.Author, author_update: AuthorUp
     for key, value in update_data.items():
         setattr(db_author,key, value)
 
-        db.commit()
-        db.refresh(db_author)
-        return db_author
+    db.commit()
+    db.refresh(db_author)
+    return db_author
 
 def get_author(db: Session, author_id: int):
     return db.query(models.Author).filter(models.Author.id == author_id).first()

@@ -5,6 +5,7 @@ from typing import List
 from app.db.database import get_db
 from app.schemas.author import AuthorCreate, AuthorResponse, AuthorUpdate
 from app.crud import crud_author
+from app.api.routes.dependencies.dependencies import pagination_params
 
 router = APIRouter(
     prefix="/authors",
@@ -16,8 +17,11 @@ def create_author(author: AuthorCreate, db: Session = Depends(get_db)):
     return crud_author.create_author(db=db, author=author)
 
 @router.get("/", response_model=List[AuthorResponse])
-def get_authors(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return crud_author.get_authors(db=db, skip=skip, limit=limit)
+def get_authors(pagination: dict = Depends(pagination_params), db: Session = Depends(get_db)):
+    skip_value = pagination["skip"]
+    limit_value = pagination["limit"]
+
+    return crud_author.get_authors(db=db, skip=skip_value, limit=limit_value)
 
 @router.put("/{author_id}", response_model=AuthorResponse)
 def author_update(author_id: int, author_update: AuthorUpdate, db: Session = Depends(get_db)):
