@@ -28,6 +28,15 @@ def author_update(author_id: int, author_update: AuthorUpdate, db: Session = Dep
     db_author = crud_author.get_author(db, author_id=author_id)
 
     if db_author is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="There is no writer with id : {author_id}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"There is no writer with id : {author_id}")
     
     return crud_author.update_author(db=db, db_author=db_author, author_update=author_update)
+
+@router.get("/search/", response_model=List[AuthorResponse])
+def search_author(name: str, db: Session = Depends(get_db)):
+    found_authors = crud_author.search_author(name, db)
+
+    if found_authors is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Author with the name {name} cannot be found")
+
+    return found_authors

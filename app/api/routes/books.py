@@ -31,7 +31,7 @@ def get_all_books(pagination = Depends(pagination_params), db: Session = Depends
 def get_book(book_id: int, db: Session = Depends(get_db)):
     db_book = crud.get_book(db=db, book_id=book_id)
     if db_book is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="The book with id {book_id} cannot be found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"The book with id {book_id} cannot be found")
     
     return db_book
 
@@ -39,7 +39,7 @@ def get_book(book_id: int, db: Session = Depends(get_db)):
 def update_book(book_id : int, book_update: schemas.BookUpdate, db: Session = Depends(get_db)):
     db_book = crud.get_book(db=db, book_id=book_id)
     if db_book is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="The book with id {book_id} cannot be found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"The book with id {book_id} cannot be found")
     
     return crud.update_book(db=db, db_book=db_book, book_update=book_update)
 
@@ -47,6 +47,6 @@ def update_book(book_id : int, book_update: schemas.BookUpdate, db: Session = De
 def delete_book(book_id: int, db: Session = Depends(get_db)):
     db_book = crud.get_book(db=db, book_id=book_id)
     if db_book is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="The book with id {book_id} cannot be found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"The book with id {book_id} cannot be found")
     
     return crud.delete_book(db=db, db_book=db_book)

@@ -28,3 +28,6 @@ def update_author(db: Session, db_author: models.Author, author_update: AuthorUp
 
 def get_author(db: Session, author_id: int):
     return db.query(models.Author).filter(models.Author.id == author_id).first()
+
+def search_author(name: str, db: Session):
+    return db.query(models.Author).filter(models.Author.name.ilike(f"%{name}%")).all()

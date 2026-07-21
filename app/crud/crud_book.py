@@ -13,7 +13,8 @@ def create_book(db: Session, book: schemas.BookCreate):
     db_book = models.Book(
         title = book.title,
         author_id = book.author_id,
-        isbn = book.isbn
+        isbn = book.isbn,
+        page_number = book.page_number
     )
 
     db.add(db_book)

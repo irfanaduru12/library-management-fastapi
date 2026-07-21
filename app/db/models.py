@@ -11,6 +11,7 @@ class Book(Base):
     isbn = Column(String, nullable=True)
     is_borrowed = Column(Boolean, default=False)
     author_id = Column(Integer, ForeignKey("authors.id"), nullable=True) #nullable must be true in order to protect existing data
+    page_number = Column(Integer, nullable=True)
 
 class Author(Base):
     __tablename__ = "authors"
