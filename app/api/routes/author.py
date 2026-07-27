@@ -6,6 +6,10 @@ from app.db.database import get_db
 from app.schemas.author import AuthorCreate, AuthorResponse, AuthorUpdate
 from app.crud import crud_author
 from app.api.routes.dependencies.dependencies import pagination_params
+from app.services import author_service
+
+from app.dependencies import get_current_user
+from app.db import models
 
 router = APIRouter(
     prefix="/authors",
@@ -13,7 +17,7 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=AuthorResponse, status_code=status.HTTP_201_CREATED)
-def create_author(author: AuthorCreate, db: Session = Depends(get_db)):
+def create_author(author: AuthorCreate, db: Session = Depends(get_db), current_user : models.User = Depends(get_current_user)):
     return crud_author.create_author(db=db, author=author)
 
 @router.get("/", response_model=List[AuthorResponse])
@@ -24,19 +28,9 @@ def get_authors(pagination: dict = Depends(pagination_params), db: Session = Dep
     return crud_author.get_authors(db=db, skip=skip_value, limit=limit_value)
 
 @router.put("/{author_id}", response_model=AuthorResponse)
-def author_update(author_id: int, author_update: AuthorUpdate, db: Session = Depends(get_db)):
-    db_author = crud_author.get_author(db, author_id=author_id)
-
-    if db_author is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"There is no writer with id : {author_id}")
-    
-    return crud_author.update_author(db=db, db_author=db_author, author_update=author_update)
+def author_update(author_id: int, author_update: AuthorUpdate, db: Session = Depends(get_db), current_user : models.User = Depends(get_current_user)):
+    return author_service.update_author(db=db, author_id=author_id, author_data=author_update)
 
 @router.get("/search/", response_model=List[AuthorResponse])
 def search_author(name: str, db: Session = Depends(get_db)):
-    found_authors = crud_author.search_author(name, db)
-
-    if found_authors is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Author with the name {name} cannot be found")
-
-    return found_authors
+    return author_service.search_authors(db=db, name=name)

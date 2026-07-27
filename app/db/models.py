@@ -20,3 +20,11 @@ class Author(Base):
     name = Column(String, nullable=False)
     books = relationship("Book", back_populates="author")
     birth_date = Column(Date, nullable=True)   
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    is_active = Column(Boolean, default=True) 
