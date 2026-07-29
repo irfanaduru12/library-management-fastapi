@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
-from app.schemas.author import AuthorResponse
+from app.schemas.author import AuthorBase
 
 class BookBase(BaseModel):
     title: str
@@ -21,7 +21,7 @@ class BookUpdate(BaseModel):
 class BookResponse(BookBase):
     id: int
     is_borrowed: bool
-    author: Optional[AuthorResponse]
+    author: Optional[AuthorBase]
 
     model_config = ConfigDict(from_attributes=True) # turns sqlalchemy objects to JSON
 

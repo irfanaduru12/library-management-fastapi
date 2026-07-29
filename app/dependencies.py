@@ -1,11 +1,11 @@
-from fastapi import Depends, status, HTTPException
+from fastapi import Depends, status, HTTPException, Query
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.core.security import SECRET_KEY, ALGORITHM
-from app.crud import crud_user
 from app.db import models
+from app.services import user_service
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
@@ -22,8 +22,20 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     except JWTError:
         raise credentials_exception
 
-    user = crud_user.get_user_by_username(db, username=username)
+    user = user_service.get_user_by_username(db, username=username)
     if user is None:
         raise credentials_exception
 
     return user
+
+def get_current_admin_user(current_user: models.User = Depends(get_current_user)):
+    if current_user.role != "admin": #type: ignore
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not authorized for this action")
+
+    return current_user
+
+def pagination_params(skip: int = Query(0, ge=0, description="Records to be skipped"),
+               limit: int = Query(10, ge=1, description="Max records to be shown")):
+    safe_limit = min(limit, 100)
+
+    return {"skip": skip, "limit": safe_limit}
